@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EDF1EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141A1C" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Money">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Money</title>
+<style>
+:root{
+  --bg:#EDF1EF; --surface:#FFFFFF; --ink:#1E292C; --muted:#5B6A6C; --line:#D5DEDB;
+  --accent:#2C6B68; --accent-soft:#D6E7E4; --warn:#8F5C12; --warn-soft:#F4E6CF;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141A1C; --surface:#1D2528; --ink:#E4EBE9; --muted:#9AAAA8; --line:#2E3A3D;
+    --accent:#7CC1BA; --accent-soft:#233936; --warn:#E3B062; --warn-soft:#3A3021; }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.num{font-variant-numeric:tabular-nums}
+main{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 110px)}
+h1{font-size:28px;letter-spacing:-.02em;margin:4px 0 16px;font-weight:700}
+h2{font-size:17px;margin:0 0 10px;font-weight:650}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.panel{background:var(--surface);border-radius:22px;padding:18px;margin-bottom:14px}
+.hero{padding:22px 20px 20px}
+.big{font-size:56px;font-weight:700;letter-spacing:-.035em;line-height:1.05;margin:6px 0 6px}
+.big.over{color:var(--warn)}
+.mid{font-size:24px;font-weight:650;letter-spacing:-.01em}
+.track{position:relative;height:10px;border-radius:6px;background:var(--accent-soft);margin:18px 0 8px}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent)}
+.fill.over{background:var(--warn)}
+.pace{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);opacity:.45}
+.note{background:var(--warn-soft);border-radius:12px;padding:12px 14px;font-size:15px;margin-top:12px}
+.note.calm{background:var(--accent-soft)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:15px;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open] summary{margin-bottom:8px}
+.why{font-size:15px}
+.why table{width:100%;border-collapse:collapse;margin:8px 0}
+.why td{padding:5px 0;border-bottom:1px solid var(--line)}
+.why td:last-child{text-align:right;padding-left:10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .l{min-width:0;flex:1}
+.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn{display:block;width:100%;padding:15px;border-radius:14px;background:var(--accent);color:var(--surface);font-weight:650;font-size:17px;text-align:center}
+.btn.secondary{background:var(--accent-soft);color:var(--accent)}
+.btn.danger{background:transparent;color:var(--warn);border:1px solid var(--line)}
+.btn+.btn{margin-top:10px}
+.link{color:var(--accent);font-weight:600;padding:8px 0}
+.x{color:var(--muted);font-size:22px;padding:4px 8px;line-height:1}
+input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-height:44px}
+input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.f{display:block;margin-bottom:12px;font-size:14px;color:var(--muted)}
+label.f input,label.f select{margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.billrow{display:grid;grid-template-columns:1.5fr 1fr 1.2fr auto;gap:6px;align-items:center;margin-bottom:8px}
+.billrow input,.billrow select{padding:8px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);display:flex;justify-content:space-around;align-items:center;z-index:10}
+nav.tabs button{flex:1;padding:6px 0;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.tabs .i{font-size:20px;line-height:1}
+nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:650}
+nav.tabs .add{flex:0 0 58px;width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--surface);font-size:32px;margin-top:-28px;box-shadow:0 4px 14px rgba(44,107,104,.35);justify-content:center}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,20,20,.42);z-index:20;display:flex;align-items:flex-end}
+.sheet{background:var(--surface);width:100%;max-width:560px;margin:0 auto;border-radius:22px 22px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 18px);max-height:92vh;overflow:auto;animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+.amount{font-size:46px;font-weight:700;text-align:center;border:0;background:transparent;padding:4px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.chip{position:relative;padding:10px 4px;border-radius:12px;background:var(--bg);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid transparent;text-align:center}
+.chip .e{font-size:22px}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.chip .x{position:absolute;top:0;right:0;font-size:16px}
+.seg{display:flex;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;padding:8px;border-radius:9px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:650}
+.bar{height:8px;border-radius:4px;background:var(--accent-soft);margin-top:6px}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.step{display:flex;gap:14px}
+.step .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.step .b{flex:1;min-width:0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;z-index:30;width:max-content;max-width:90%}
+.empty{text-align:center;padding:24px 10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav class="tabs" id="tabs" aria-label="Sections">
+  <button data-view="home"><span class="i">◎</span>Home</button>
+  <button data-view="spending"><span class="i">▤</span>Spending</button>
+  <button class="add" data-act="add" aria-label="Add spending">+</button>
+  <button data-view="payday"><span class="i">⇣</span>Payday</button>
+  <button data-view="settings"><span class="i">⚙</span>Settings</button>
+</nav>
+<script>
+(function(){
+'use strict';
+
+/* ---------- Helpers ---------- */
+const KEY = 'money_app_v1';
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const FREQ = { weekly: 52, fortnightly: 26, monthly: 12, yearly: 1 };   // times per year
+const FREQ_LABEL = { weekly: 'Weekly', fortnightly: 'Fortnightly', monthly: 'Monthly', yearly: 'Yearly' };
+const toMonthly = (amount, freq) => (+amount || 0) * (FREQ[freq] || 12) / 12;
+const nzd = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' });
+const nzd0 = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0, minimumFractionDigits: 0 });
+const m = n => nzd.format(n || 0);
+const m0 = n => nzd0.format(Math.round(n || 0));
+const num = v => { const n = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isFinite(n) ? n : 0; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const iso = d => { const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return z.toISOString().slice(0, 10); };
+const parse = s => new Date(s + 'T00:00:00');
+const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const weekStart = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return addDays(x, -((x.getDay() + 6) % 7)); }; // Monday
+const monthStart = (d, off = 0) => new Date(d.getFullYear(), d.getMonth() + off, 1);
+const fmtDate = d => d.toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short' });
+const daysBetween = (a, b) => Math.round((b - a) / 864e5);
+const listJoin = a => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+/* ---------- Data ---------- */
+const DEFAULT_CATS = [
+  ['groceries', 'Groceries', '🛒'], ['transport', 'Transport', '🚗'], ['eating', 'Eating out', '🍜'],
+  ['fun', 'Entertainment', '🎬'], ['shopping', 'Shopping', '🛍️'], ['pets', 'Pets', '🐾'],
+  ['health', 'Health', '💊'], ['care', 'Personal care', '🧴'], ['travel', 'Travel', '✈️'],
+  ['education', 'Education', '📚'], ['gifts', 'Gifts', '🎁'], ['other', 'Other', '📦']
+].map(([id, name, emoji]) => ({ id, name, emoji }));
+
+function fresh() {
+  return {
+    version: 1, setup: false,
+    settings: { payAmount: 0, payFreq: 'monthly', nextPayday: '', savingsPerMonth: 500, bufferPerMonth: 100, lastBackup: null },
+    otherIncome: [],
+    bills: ['Rent', 'Power, internet, water', 'Insurance', 'Phone', 'Subscriptions']
+      .map((name, i) => ({ id: uid() + i, name, amount: 0, freq: i === 0 ? 'weekly' : 'monthly' })),
+    categories: DEFAULT_CATS.slice(), expenses: [], paydays: []
+  };
+}
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
+if (!S || !S.settings) S = fresh();
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('Could not save on this phone. Make a backup in Settings.'); }
+}
+
+/* ---------- Calculations ---------- */
+function plan() {
+  const s = S.settings;
+  const pay = toMonthly(s.payAmount, s.payFreq);
+  const other = S.otherIncome.reduce((a, i) => a + toMonthly(i.amount, i.freq), 0);
+  const income = pay + other;
+  const bills = S.bills.reduce((a, b) => a + toMonthly(b.amount, b.freq), 0);
+  const savings = +s.savingsPerMonth || 0, buffer = +s.bufferPerMonth || 0;
+  const flex = income - bills - savings - buffer;
+  return { pay, other, income, bills, savings, buffer, flex, weekly: flex * 12 / 52 };
+}
+function advance(d) {
+  const f = S.settings.payFreq;
+  if (f === 'weekly') return addDays(d, 7);
+  if (f === 'fortnightly') return addDays(d, 14);
+  const day = parse(S.settings.nextPayday).getDate();
+  const y = d.getFullYear(), mo = d.getMonth() + 1, last = new Date(y, mo + 1, 0).getDate();
+  return new Date(y, mo, Math.min(day, last));
+}
+function nextPayday() {
+  if (!S.settings.nextPayday) return null;
+  let d = parse(S.settings.nextPayday), t = today(), guard = 0;
+  while (d < t && guard++ < 400) d = advance(d);
+  return d;
+}
+const sum = list => list.reduce((a, e) => a + (+e.amount || 0), 0);
+const expIn = (a, b) => S.expenses.filter(e => { const d = parse(e.date); return d >= a && d < b; });
+const byCat = list => { const o = {}; list.forEach(e => o[e.cat] = (o[e.cat] || 0) + (+e.amount || 0)); return o; };
+const cat = id => S.categories.find(c => c.id === id) || { id, name: 'Other', emoji: '📦' };
+const sorted = list => [...list].sort((a, b) => b.date.localeCompare(a.date) || (b.ts || 0) - (a.ts || 0));
+function weekStatus() {
+  const p = plan(), t = today(), ws = weekStart(t);
+  const spent = sum(expIn(ws, addDays(ws, 7)));
+  const dayN = daysBetween(ws, t) + 1;
+  return { p, spent, left: p.weekly - spent, dayN, daysLeft: 8 - dayN };
+}
+
+/* ---------- Views ---------- */
+let view = S.setup ? 'home' : 'settings';
+let period = 'week';
+let pd = null;      // payday draft
+let draftCat = null;
+
+function expRow(e) {
+  const c = cat(e.cat);
+  return `<div class="row"><div class="l"><div class="t">${c.emoji} ${esc(c.name)}${e.note ? ` <span class="muted">${esc(e.note)}</span>` : ''}</div>
+    <div class="muted small">${fmtDate(parse(e.date))}</div></div>
+    <div class="num">${m(+e.amount)}</div>
+    <button class="x" data-act="delExp" data-id="${e.id}" aria-label="Delete entry">×</button></div>`;
+}
+
+function vHome() {
+  const { p, spent, left, dayN, daysLeft } = weekStatus();
+  const t = today();
+  const pct = p.weekly > 0 ? Math.min(100, spent / p.weekly * 100) : 100;
+  let note = '';
+  if (p.weekly <= 0) note = `<div class="note">Your bills and savings add up to more than your income, so there's no weekly spending money in the plan yet. Check the numbers in Settings.</div>`;
+  else if (left < 0) note = `<div class="note">You're ${m0(-left)} over this week's amount. That happens, and it's what the buffer is for. A fresh week starts on Monday.</div>`;
+  else if (spent > 20 && spent > p.weekly * dayN / 7 * 1.15) note = `<div class="note">You're spending a little faster than this week allows. Around ${m0(left / daysLeft)} a day would get you to Sunday.</div>`;
+  else if (spent > 0) note = `<div class="note calm">You're on pace this week.</div>`;
+
+  let h = `<h1>${t.toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' })}</h1>`;
+  const lb = S.settings.lastBackup;
+  if (S.expenses.length >= 5 && (!lb || Date.now() - lb > 7 * 864e5))
+    h += `<section class="panel"><p><b>Time for a backup.</b> Your data lives only on this phone, so a copy in iCloud Drive protects it.</p><button class="btn secondary" data-act="backup">Back up now</button></section>`;
+
+  h += `<section class="panel hero">
+    <div class="muted">Safe to spend this week</div>
+    <div class="big num ${left < 0 ? 'over' : ''}">${m0(left)}</div>
+    <div class="muted small num">${m0(spent)} spent of ${m0(p.weekly)}. ${daysLeft} day${daysLeft === 1 ? '' : 's'} left, including today.</div>
+    <div class="track" aria-hidden="true"><div class="fill ${left < 0 ? 'over' : ''}" style="width:${pct}%"></div><div class="pace" style="left:${dayN / 7 * 100}%"></div></div>
+    <div class="muted small">The line shows where you'd be if you spent evenly through the week.</div>
+    ${note}
+    <details><summary>How is this worked out?</summary><div class="why">
+      <p>This is your money for groceries, transport, eating out and anything else that isn't a fixed bill.</p>
+      <table>
+        <tr><td>Income per month</td><td class="num">${m0(p.income)}</td></tr>
+        <tr><td>Fixed bills per month</td><td class="num">− ${m0(p.bills)}</td></tr>
+        <tr><td>Savings, paid first</td><td class="num">− ${m0(p.savings)}</td></tr>
+        <tr><td>Buffer for surprises</td><td class="num">− ${m0(p.buffer)}</td></tr>
+        <tr><td><b>Left to spend per month</b></td><td class="num"><b>${m0(p.flex)}</b></td></tr>
+      </table>
+      <p>A year has 52 weeks but 12 months, so a month is about 4.33 weeks, not 4. ${m0(p.flex)} × 12 ÷ 52 = ${m0(p.weekly)} a week. Take away the ${m0(spent)} spent since Monday and you have ${m0(left)}.</p>
+      <p class="muted">Why weekly? A smaller amount that resets each Monday is easier to manage than one big monthly amount, which tends to feel like more than it is.</p>
+    </div></details>
+  </section>`;
+
+  const np = nextPayday();
+  if (np) {
+    const d = daysBetween(t, np);
+    h += `<section class="panel"><div class="row" style="padding:0;border:0"><div class="l">
+      <h2 style="margin:0">${d === 0 ? 'Payday is today' : `Payday in ${d} day${d === 1 ? '' : 's'}`}</h2>
+      <div class="muted small">${fmtDate(np)}</div></div>
+      <button class="link" data-view="payday">Payday Plan</button></div></section>`;
+  }
+
+  const ms = monthStart(t), me = monthStart(t, 1);
+  const mSaved = S.paydays.filter(x => { const d = parse(x.date); return d >= ms && d < me; }).reduce((a, x) => a + (+x.savings || 0), 0);
+  h += `<section class="panel"><h2>This month so far</h2><div class="grid2">
+    <div><div class="muted small">Spent (tracked)</div><div class="mid num">${m0(sum(expIn(ms, me)))}</div></div>
+    <div><div class="muted small">Saved</div><div class="mid num">${m0(mSaved)}</div></div></div>
+    ${mSaved === 0 ? '<p class="small muted" style="margin:8px 0 0">Savings appear here after you complete a Payday Plan.</p>' : ''}</section>`;
+
+  const recent = sorted(S.expenses).slice(0, 5);
+  h += `<section class="panel"><h2>Recent</h2>${recent.length ? recent.map(expRow).join('')
+    : '<p class="muted">Nothing recorded yet. Tap + each time you pay for something. It takes a few seconds, and that small pause is what builds awareness.</p>'}</section>`;
+  return h;
+}
+
+function ranges() {
+  const t = today();
+  if (period === 'week') { const a = weekStart(t); return { a, b: addDays(a, 7), pa: addDays(a, -7), pb: a, label: 'this week', plabel: 'last week', partial: true }; }
+  if (period === 'month') return { a: monthStart(t), b: monthStart(t, 1), pa: monthStart(t, -1), pb: monthStart(t), label: 'this month', plabel: 'last month', partial: true };
+  return { a: monthStart(t, -1), b: monthStart(t), pa: monthStart(t, -2), pb: monthStart(t, -1), label: 'last month', plabel: 'the month before', partial: false };
+}
+
+function insights(r, bc, pbc) {
+  const out = [];
+  let best = null;
+  Object.keys(Object.assign({}, bc, pbc)).forEach(id => {
+    const d = (bc[id] || 0) - (pbc[id] || 0);
+    if (!pbc[id] || Math.abs(d) < 20 || (r.partial && d < 0)) return;
+    if (!best || Math.abs(d) > Math.abs(best.d)) best = { id, d };
+  });
+  if (best) {
+    const c = cat(best.id);
+    out.push(`<p>${c.emoji} ${esc(c.name)}: ${m0(Math.abs(best.d))} ${best.d > 0 ? 'more' : 'less'} than ${r.plabel}${r.partial ? ', and the period isn\'t over yet' : ''}.</p>`);
+  }
+  const ranked = Object.entries(bc).sort((a, b) => b[1] - a[1]);
+  const top = ranked.find(([id]) => id !== 'groceries') || ranked[0];
+  if (top) {
+    const elapsed = r.partial ? Math.min(daysBetween(r.a, today()) + 1, daysBetween(r.a, r.b)) : daysBetween(r.a, r.b);
+    const perWeek = top[1] / Math.max(elapsed, 1) * 7;
+    if (perWeek >= 20) {
+      const cut = perWeek >= 50 ? 20 : 10;
+      out.push(`<p>You're spending about ${m0(perWeek)} a week on ${esc(cat(top[0]).name.toLowerCase())}. Spending ${m0(cut)} less a week would add up to ${m0(cut * 52)} over a year. Small, regular amounts are what move the needle.</p>`);
+    }
+  }
+  return out.join('');
+}
+
+function report(r, list) {
+  const p = plan();
+  const paid = S.paydays.filter(x => { const d = parse(x.date); return d >= r.a && d < r.b; });
+  const income = paid.length ? paid.reduce((a, x) => a + (+x.amount || 0), 0) + p.other : p.income;
+  const saved = paid.length ? paid.reduce((a, x) => a + (+x.savings || 0), 0) : null;
+  const savedV = saved == null ? p.savings : saved;
+  const tracked = sum(list);
+  const gap = income - p.bills - savedV - tracked;
+  const top = Object.entries(byCat(list)).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id]) => esc(cat(id).name.toLowerCase()));
+  return `<section class="panel"><h2>Where did your money go?</h2><div class="why"><table>
+    <tr><td>Income${paid.length ? '' : ' (from your plan)'}</td><td class="num">${m0(income)}</td></tr>
+    <tr><td>Fixed bills</td><td class="num">${m0(p.bills)}</td></tr>
+    <tr><td>Saved${saved == null ? ' (planned, no payday recorded)' : ''}</td><td class="num">${m0(savedV)}</td></tr>
+    <tr><td>Tracked spending</td><td class="num">${m0(tracked)}</td></tr>
+    <tr><td><b>${gap >= 0 ? 'Not accounted for' : 'Over the plan by'}</b></td><td class="num"><b>${m0(Math.abs(gap))}</b></td></tr></table>
+    ${top.length ? `<p>Your largest spending categories were ${listJoin(top)}.</p>` : ''}
+    ${gap > 50 ? `<p class="muted">"Not accounted for" is money that's either still in your account or was spent without being recorded. Comparing this with your bank statement once a month shows which spending slips past you.</p>` : ''}
+    ${gap < 0 ? `<p class="muted">Spending was higher than the plan allowed. That usually means a regular cost is missing from the plan. It's information, not a failure: adjust the plan to match real life.</p>` : ''}
+  </div></section>`;
+}
+
+function vSpending() {
+  const r = ranges(), list = expIn(r.a, r.b), prev = expIn(r.pa, r.pb);
+  const bc = byCat(list), pbc = byCat(prev), total = sum(list);
+  const cats = Object.entries(bc).sort((x, y) => y[1] - x[1]);
+  const max = cats.length ? cats[0][1] : 1;
+  let h = `<h1>Spending</h1><div class="seg" role="group" aria-label="Period">${[['week', 'This week'], ['month', 'This month'], ['last', 'Last month']]
+    .map(([k, l]) => `<button data-act="period" data-p="${k}" aria-pressed="${period === k}">${l}</button>`).join('')}</div>`;
+  if (period === 'last') h += report(r, list);
+  h += `<section class="panel"><div class="muted small">Tracked spending ${r.label}</div><div class="big num" style="font-size:40px">${m0(total)}</div>
+    ${prev.length ? `<div class="muted small num">${m0(sum(prev))} ${r.plabel}${r.partial ? ' (whole period)' : ''}</div>` : ''}</section>`;
+  if (!list.length) return h + `<section class="panel empty">Nothing recorded ${r.label}. Tap + to add spending.</section>`;
+  h += `<section class="panel"><h2>By category</h2>${cats.map(([id, v]) => {
+    const c = cat(id), pv = pbc[id] || 0;
+    return `<div style="padding:8px 0"><div class="row" style="padding:0;border:0"><div class="l t">${c.emoji} ${esc(c.name)}</div><div class="num">${m0(v)}</div></div>
+      <div class="bar"><i style="width:${Math.max(3, v / max * 100)}%"></i></div>
+      ${pv ? `<div class="muted small num" style="margin-top:4px">${r.plabel.replace(/^./, s => s.toUpperCase())}: ${m0(pv)}</div>` : ''}</div>`;
+  }).join('')}</section>`;
+  const ins = insights(r, bc, pbc);
+  if (ins) h += `<section class="panel"><h2>What stands out</h2>${ins}</section>`;
+  h += `<section class="panel"><h2>All entries</h2>${sorted(list).map(expRow).join('')}</section>`;
+  return h;
+}
+
+function pdCalc() {
+  const s = S.settings, p = plan(), per = FREQ[s.payFreq] || 12;
+  const billsPer = p.bills * 12 / per;
+  const spend = pd.amount - billsPer - pd.savings - pd.buffer;
+  return { per, weeks: 52 / per, billsPer, spend };
+}
+function pdResult() {
+  const c = pdCalc();
+  const wk = c.spend / c.weeks;
+  return `<div class="step"><div class="n">5</div><div class="b"><h2>Spending money: ${m0(c.spend)}</h2>
+    <p>That's about <b class="num">${m0(wk)} a week</b> for groceries, transport, eating out and everything else${c.weeks > 1 ? ` over the next ${c.weeks % 1 ? c.weeks.toFixed(1) : c.weeks} weeks` : ''}.</p>
+    ${c.spend < 0 ? '<div class="note">This pay doesn\'t cover the plan. Lower the savings for this pay, or check the amount received.</div>' : ''}
+    ${pd.amount > 0 ? `<p class="small muted">You're saving ${Math.round(pd.savings / pd.amount * 100)}% of this pay.</p>` : ''}</div></div>`;
+}
+function vPayday() {
+  const s = S.settings, p = plan(), per = FREQ[s.payFreq] || 12;
+  if (!pd) pd = { amount: +s.payAmount || 0, savings: Math.round((+s.savingsPerMonth || 0) * 12 / per), buffer: Math.round((+s.bufferPerMonth || 0) * 12 / per) };
+  const c = pdCalc();
+  const word = { weekly: 'week', fortnightly: 'fortnight', monthly: 'month' }[s.payFreq] || 'pay period';
+  const billRows = S.bills.filter(b => +b.amount).map(b => `<tr><td>${esc(b.name)}</td><td class="num">${m0(toMonthly(b.amount, b.freq) * 12 / per)}</td></tr>`).join('');
+  const hist = sorted(S.paydays).slice(0, 6);
+  return `<h1>Payday Plan</h1>
+  <p class="muted">Do this on the day you're paid. It takes two minutes, and it decides where your money goes before spending does.</p>
+  <section class="panel"><div class="step"><div class="n">1</div><div class="b"><h2>Money in</h2>
+    <label class="f">Amount that arrived in your account<input class="num" inputmode="decimal" data-pd="amount" value="${pd.amount || ''}"></label></div></div></section>
+  <section class="panel"><div class="step"><div class="n">2</div><div class="b"><h2>Keep aside for bills: ${m0(c.billsPer)}</h2>
+    ${billRows ? `<div class="why"><table>${billRows}</table></div>` : '<p class="muted">No bills entered yet. Add them in Settings.</p>'}
+    <p class="small muted">This covers one ${word} of bills. Weekly bills are converted properly: $100 a week is $433 a month, not $400, because a month is about 4.33 weeks.</p></div></div></section>
+  <section class="panel"><div class="step"><div class="n">3</div><div class="b"><h2>Pay yourself first</h2>
+    <label class="f">Move to savings today<input class="num" inputmode="decimal" data-pd="savings" value="${pd.savings}"></label>
+    <p class="small">Saving first works better than saving what's left, because there's rarely anything left. A savings account that isn't linked to your card makes the money harder to spend on impulse.</p></div></div></section>
+  <section class="panel"><div class="step"><div class="n">4</div><div class="b"><h2>Buffer</h2>
+    <label class="f">Leave in your account for surprises<input class="num" inputmode="decimal" data-pd="buffer" value="${pd.buffer}"></label>
+    <p class="small muted">For things you didn't plan: a present, a vet visit, a parking fine.</p></div></div></section>
+  <section class="panel" id="pdResult">${pdResult()}</section>
+  <button class="btn" data-act="recordPayday">I've moved my savings</button>
+  ${S.otherIncome.length ? '<p class="small muted" style="margin-top:10px">Other income isn\'t included here. It\'s counted in your weekly amount on the Home screen.</p>' : ''}
+  ${hist.length ? `<section class="panel" style="margin-top:14px"><h2>Past paydays</h2>${hist.map(x => `<div class="row"><div class="l">${fmtDate(parse(x.date))}</div><div class="num small">${m0(x.amount)} in, ${m0(x.savings)} saved</div></div>`).join('')}</section>` : ''}`;
+}
+
+const freqOpts = (v, withYearly) => Object.keys(FREQ).filter(k => withYearly || k !== 'yearly')
+  .map(k => `<option value="${k}" ${v === k ? 'selected' : ''}>${FREQ_LABEL[k]}</option>`).join('');
+function rows(list) {
+  return S[list].map(r => `<div class="billrow">
+    <input aria-label="Name" data-list="${list}" data-id="${r.id}" data-f="name" value="${esc(r.name)}" placeholder="Name">
+    <input aria-label="Amount" class="num" inputmode="decimal" data-list="${list}" data-id="${r.id}" data-f="amount" value="${+r.amount ? esc(r.amount) : ''}" placeholder="$">
+    <select aria-label="How often" data-list="${list}" data-id="${r.id}" data-f="freq">${freqOpts(r.freq, true)}</select>
+    <button class="x" data-act="delRow" data-list="${list}" data-id="${r.id}" aria-label="Remove">×</button></div>`).join('');
+}
+function planSummary() {
+  const p = plan();
+  if (!p.income) return '<p class="small muted">Enter your pay above to see your weekly spending amount.</p>';
+  return `<div class="note ${p.weekly > 0 ? 'calm' : ''}">
+    <div class="num small">Income ${m0(p.income)} a month. Bills ${m0(p.bills)}. Savings ${m0(p.savings)}. Buffer ${m0(p.buffer)}.</div>
+    <div style="margin-top:6px"><b class="num">That leaves ${m0(p.weekly)} a week to spend.</b> You'd be saving ${Math.round(p.savings / p.income * 100)}% of your income.</div></div>`;
+}
+function vSettings() {
+  const s = S.settings, setup = !S.setup, lb = s.lastBackup;
+  let h = `<h1>${setup ? 'Set up' : 'Settings'}</h1>
+  ${setup ? `<section class="panel"><p>This takes about two minutes. Your numbers stay on this phone; nothing is sent anywhere.</p><p class="small muted">Rough numbers are fine. You can change anything later.</p></section>` : ''}
+  <section class="panel"><h2>Your pay</h2>
+    <label class="f">Take-home pay per payday<input class="num" inputmode="decimal" data-k="payAmount" value="${+s.payAmount ? esc(s.payAmount) : ''}" placeholder="What reaches your bank account"></label>
+    <div class="grid2"><label class="f">How often<select data-k="payFreq">${freqOpts(s.payFreq)}</select></label>
+    <label class="f">Next payday<input type="date" data-k="nextPayday" value="${esc(s.nextPayday)}"></label></div>
+    <p class="small muted">Use take-home pay: tax, ACC and KiwiSaver have already been taken out of it. Your payslip shows it as net pay.</p></section>
+  <section class="panel"><h2>Other income</h2><p class="small muted">Benefits, side work, anything regular. Leave empty if there's none.</p>
+    ${rows('otherIncome')}<button class="link" data-act="addRow" data-list="otherIncome">+ Add income</button></section>
+  <section class="panel"><h2>Fixed bills</h2><p class="small muted">Costs that are about the same each time. Enter each one the way you pay it: rent weekly, power monthly, and so on.</p>
+    ${rows('bills')}<button class="link" data-act="addRow" data-list="bills">+ Add bill</button></section>
+  <section class="panel"><h2>Your plan</h2>
+    <div class="grid2"><label class="f">Save per month<input class="num" inputmode="decimal" data-k="savingsPerMonth" value="${esc(s.savingsPerMonth)}"></label>
+    <label class="f">Buffer per month<input class="num" inputmode="decimal" data-k="bufferPerMonth" value="${esc(s.bufferPerMonth)}"></label></div>
+    <div id="planSummary">${planSummary()}</div>
+    <details><summary>How much should I save?</summary><div class="why"><p>There's no single right number. Starting with an amount you can keep up matters more than starting big, because the habit is what builds savings. After a month of tracking you'll see your real spending, and can raise it from there.</p></div></details>
+    <details><summary>What's the buffer for?</summary><div class="why"><p>Real life includes costs nobody plans for. A small buffer absorbs them so one surprise doesn't wreck the week. If it isn't used, it simply stays in your account.</p></div></details></section>`;
+  if (setup) return h + `<button class="btn" data-act="finishSetup">Start using the app</button>`;
+  h += `<section class="panel"><h2>Spending categories</h2><div class="chips">${S.categories.map(c => `<div class="chip"><span class="e">${c.emoji}</span>${esc(c.name)}${c.id !== 'other' ? `<button class="x" data-act="delCat" data-id="${c.id}" aria-label="Remove ${esc(c.name)}">×</button>` : ''}</div>`).join('')}</div>
+    <div class="billrow" style="grid-template-columns:64px 1fr auto"><input id="newCatEmoji" placeholder="🙂" aria-label="Emoji"><input id="newCatName" placeholder="New category" aria-label="Category name"><button class="link" data-act="addCat">Add</button></div></section>
+  <section class="panel"><h2>Your data</h2>
+    <p class="small">Everything is stored only in this app, on this phone. Nothing is sent to a server and there's no account. The trade-off: if the app is removed or Safari's website data is cleared, the data is gone. Back up weekly.</p>
+    <p class="small muted">${lb ? `Last backup: ${fmtDate(new Date(lb))}.` : 'No backup yet.'}</p>
+    <button class="btn" data-act="backup">Back up (save a file)</button>
+    <button class="btn secondary" data-act="csv">Export spending as CSV</button>
+    <button class="btn secondary" data-act="restore">Restore from a backup</button>
+    <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    <button class="btn danger" data-act="wipe" style="margin-top:22px">Delete all data</button></section>
+  <p class="muted small" style="text-align:center">A personal budgeting and learning tool. Not financial advice.</p>`;
+  return h;
+}
+
+/* ---------- Rendering ---------- */
+const main = $('#app'), tabs = $('#tabs');
+function render() {
+  main.innerHTML = ({ home: vHome, spending: vSpending, payday: vPayday, settings: vSettings })[view]();
+  tabs.hidden = !S.setup;
+  tabs.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
+}
+function go(v) { view = v; if (v === 'payday') pd = null; render(); window.scrollTo(0, 0); }
+let tt;
+function toast(msg) {
+  let el = $('#toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 3000);
+}
+function openSheet(html) {
+  closeSheet();
+  const bg = document.createElement('div'); bg.className = 'sheet-bg'; bg.id = 'sheetBg';
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  bg.addEventListener('click', ev => { if (ev.target === bg) closeSheet(); });
+  document.body.appendChild(bg);
+}
+function closeSheet() { const b = $('#sheetBg'); if (b) b.remove(); }
+function openAdd() {
+  draftCat = null;
+  openSheet(`<h2>Add spending</h2>
+    <input id="amt" class="amount num" inputmode="decimal" placeholder="$0.00" autocomplete="off" aria-label="Amount">
+    <div class="chips">${S.categories.map(c => `<button class="chip" data-act="pickCat" data-id="${c.id}" aria-pressed="false"><span class="e">${c.emoji}</span>${esc(c.name)}</button>`).join('')}</div>
+    <label class="f">Note (optional)<input id="note" maxlength="80" placeholder="e.g. lunch at work"></label>
+    <label class="f">Date<input id="date" type="date" value="${iso(today())}"></label>
+    <button class="btn" data-act="saveExp">Save</button>
+    <button class="btn secondary" data-act="closeSheet">Cancel</button>`);
+  $('#amt').focus();
+}
+
+/* ---------- Files ---------- */
+async function shareOrDownload(filename, text, type) {
+  const blob = new Blob([text], { type });
+  try {
+    const file = new File([blob], filename, { type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: filename });
+      return true;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return false; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  return true;
+}
+function toCSV() {
+  const cell = v => { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v) && isNaN(+v)) v = "'" + v; return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+  const rowsOut = [['date', 'amount_nzd', 'category', 'note']].concat(sorted(S.expenses).reverse().map(e => [e.date, (+e.amount).toFixed(2), cat(e.cat).name, e.note || '']));
+  return rowsOut.map(r => r.map(cell).join(',')).join('\n');
+}
+async function doRestore(file) {
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !data.settings || !Array.isArray(data.expenses)) throw new Error('bad');
+    if (!confirm(`Replace everything in the app with this backup? It has ${data.expenses.length} spending entries.`)) return;
+    const base = fresh();
+    S = Object.assign(base, data, { settings: Object.assign(base.settings, data.settings) });
+    ['otherIncome', 'bills', 'categories', 'expenses', 'paydays'].forEach(k => { if (!Array.isArray(S[k])) S[k] = base[k]; });
+    S.setup = true; save(); go('home'); toast('Backup restored.');
+  } catch (e) { toast("That file isn't a backup from this app."); }
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-act],[data-view]');
+  if (!t) return;
+  if (t.dataset.view) { go(t.dataset.view); return; }
+  const id = t.dataset.id;
+  switch (t.dataset.act) {
+    case 'add': openAdd(); break;
+    case 'closeSheet': closeSheet(); break;
+    case 'pickCat':
+      draftCat = id;
+      document.querySelectorAll('.sheet .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
+      break;
+    case 'saveExp': {
+      const amt = num($('#amt').value);
+      if (amt <= 0) { toast('Enter an amount first.'); return; }
+      if (!draftCat) { toast('Choose a category.'); return; }
+      S.expenses.push({ id: uid(), date: $('#date').value || iso(today()), amount: Math.round(amt * 100) / 100, cat: draftCat, note: $('#note').value.trim(), ts: Date.now() });
+      save(); closeSheet(); render();
+      const { left } = weekStatus();
+      toast(left >= 0 ? `Saved. ${m0(left)} left this week.` : `Saved. You're ${m0(-left)} over this week's amount.`);
+      break;
+    }
+    case 'delExp':
+      if (confirm('Delete this entry?')) { S.expenses = S.expenses.filter(x => x.id !== id); save(); render(); }
+      break;
+    case 'period': period = t.dataset.p; render(); break;
+    case 'recordPayday': {
+      const c = pdCalc();
+      if (pd.amount <= 0) { toast('Enter the amount you received.'); return; }
+      S.paydays.push({ id: uid(), date: iso(today()), amount: pd.amount, bills: Math.round(c.billsPer), savings: pd.savings, buffer: pd.buffer, spend: Math.round(c.spend) });
+      let np = nextPayday();
+      if (np) { if (np <= today()) np = advance(np); S.settings.nextPayday = iso(np); }
+      save(); go('home'); toast('Payday recorded. Savings came first.');
+      break;
+    }
+    case 'addRow': S[t.dataset.list].push({ id: uid(), name: '', amount: 0, freq: 'monthly' }); save(); render(); break;
+    case 'delRow': S[t.dataset.list] = S[t.dataset.list].filter(x => x.id !== id); save(); render(); break;
+    case 'finishSetup':
+      if (!(+S.settings.payAmount > 0) && !S.otherIncome.some(i => +i.amount > 0)) { toast('Enter your pay or other income first.'); return; }
+      S.setup = true; save(); go('home');
+      break;
+    case 'delCat':
+      if (confirm('Remove this category? Past entries will show as Other.')) { S.categories = S.categories.filter(c => c.id !== id); save(); render(); }
+      break;
+    case 'addCat': {
+      const name = $('#newCatName').value.trim();
+      if (!name) { toast('Type a category name.'); return; }
+      S.categories.splice(S.categories.length - 1, 0, { id: 'c_' + uid(), name, emoji: $('#newCatEmoji').value.trim() || '•' });
+      save(); render(); break;
+    }
+    case 'backup':
+      if (await shareOrDownload(`money-backup-${iso(new Date())}.json`, JSON.stringify(S, null, 2), 'application/json')) {
+        S.settings.lastBackup = Date.now(); save(); render(); toast('Backup made. Keep it somewhere safe, like iCloud Drive.');
+      }
+      break;
+    case 'csv': shareOrDownload(`money-spending-${iso(new Date())}.csv`, toCSV(), 'text/csv'); break;
+    case 'restore': $('#restoreFile').click(); break;
+    case 'wipe':
+      if (confirm('Delete all data in this app?') && confirm('This cannot be undone. Delete everything?')) {
+        localStorage.removeItem(KEY); S = fresh(); go('settings'); toast('All data deleted.');
+      }
+      break;
+  }
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.id === 'restoreFile') { doRestore(el.files[0]); el.value = ''; return; }
+  if (el.dataset.k) {
+    const k = el.dataset.k;
+    S.settings[k] = ['payAmount', 'savingsPerMonth', 'bufferPerMonth'].includes(k) ? num(el.value) : el.value;
+    save(); const ps = $('#planSummary'); if (ps) ps.innerHTML = planSummary(); return;
+  }
+  if (el.dataset.list) {
+    const r = S[el.dataset.list].find(x => x.id === el.dataset.id);
+    if (r) { r[el.dataset.f] = el.dataset.f === 'amount' ? num(el.value) : el.value; save(); const ps = $('#planSummary'); if (ps) ps.innerHTML = planSummary(); }
+    return;
+  }
+  if (el.dataset.pd) { pd[el.dataset.pd] = num(el.value); const box = $('#pdResult'); if (box) box.innerHTML = pdResult(); }
+});
+
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>
